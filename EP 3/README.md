@@ -24,6 +24,13 @@ O repositório foi organizado com a seguinte estrututra:
 ```
 
 **Atenção**: o código, para fins de CLI, usou a biblioteca [click](https://github.com/pallets/click). Garanta que essa biblioteca foi instalada antes de executar o código!
+**Este EP foi rodado no servidor do IME `brucutuvi`. Para acessar, execute os comandos
+```
+ssh  <seu.usuario>@shell.ime.usp.br -N -f -L 8888:localhost:8888
+ssh  <seu.usuario>@shell.ime.usp.br
+ssh  <seu.usuario>@brucutuvi.ime.usp.br -N -f -L 8888:localhost:8888
+ssh  <seu.usuario>@brucutuvi.ime.usp.br
+```
 
 Para executar o EP, rode o comando na pasta raiz do repositório:
 ```
