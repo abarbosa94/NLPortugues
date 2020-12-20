@@ -28,15 +28,15 @@ np.random.seed(SEED)
 
 DATA_PATH = "https://raw.githubusercontent.com/b2wdigital/b2w-reviews01/master/B2W-Reviews01.csv"
 SEP = ";"
-BERT_MODEL_NAME = "neuralmind/bert-base-portuguese-cased"
+BERT_MODEL_NAME = "neuralmind/bert-large-portuguese-cased"
 REVIEW_TITLE = "review_title"
 REVIEW_TEXT = "review_text"
 ENCODER_SEQ_LENGTH = 117
 DECODER_SEQ_LENGTH = 8
-BATCH_SIZE = 64
+BATCH_SIZE = 16
 EPOCHS = 20
-EMBED_DIM = 256
-BERT_DIM = 768
+EMBED_DIM = 64
+BERT_DIM = 1024
 
 
 def plot_metrics(history: History, model_name):
