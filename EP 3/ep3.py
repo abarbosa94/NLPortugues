@@ -1,4 +1,4 @@
-from typing import Tuple, Union
+from typing import Tuple
 
 import click
 import matplotlib.pyplot as plt
@@ -13,7 +13,7 @@ from tensorflow.python.keras.layers import (GRU, LSTM, Attention,
                                             Bidirectional, Dense, Embedding)
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.utils.vis_utils import plot_model
-from transformers import  TFBertModel
+from transformers import TFBertModel
 
 from code_utils.metrics import generate_sequences, report_linguistic_metrics
 from code_utils.models import bert, bilstm

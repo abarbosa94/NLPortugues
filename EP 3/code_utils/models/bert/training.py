@@ -12,7 +12,7 @@ from transformers import BertTokenizerFast, TFBertModel
 def tokenize_encoder(
     input_encoder: np.array, bert_model_name: str, encoder_seq_length: int
 ):
-    bert_tokenizer = BertTokenizerFast(bert_model_name)
+    bert_tokenizer = BertTokenizerFast.from_pretrained(bert_model_name)
     flat_list_encoder = [item for sublist in input_encoder.tolist() for item in sublist]
     tokenized_bert = bert_tokenizer(
         text=flat_list_encoder,
