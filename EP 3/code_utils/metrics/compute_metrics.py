@@ -6,7 +6,7 @@ from nltk.translate import meteor_score
 from nltk.translate.bleu_score import corpus_bleu
 from nltk.translate.nist_score import corpus_nist
 from pandas import DataFrame
-from tensorflow import Tensor
+from tensorflow import Tensor, reshape
 from tensorflow.keras import Model
 from tensorflow.python.keras.layers import TextVectorization
 from tqdm import tqdm
@@ -28,6 +28,7 @@ def decode_text(
     state = None
     out_inf = None
     if infdec.get_layer("decoder_rnn").__class__.__name__ is "GRU":
+        source = reshape(source, shape=(1, -1))
         out_inf, state_h_inf = infenc.predict(source)
         state = state_h_inf
     elif infdec.get_layer("decoder_rnn").__class__.__name__ is "LSTM":

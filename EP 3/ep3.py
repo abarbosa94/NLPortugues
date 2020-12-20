@@ -160,7 +160,7 @@ def bert_model_definition(
     decoder_inference = bert.decoder_inference_model(
         decoder_embedding=dec_emb_embedding_inference,
         target_text=input_text_decoder,
-        latent_dim=EMBED_DIM,
+        latent_dim=BERT_DIM,
         encoder_sequence_length=ENCODER_SEQ_LENGTH,
         decoder_model=decoder_model,
         attention_layer=attention_layer,
