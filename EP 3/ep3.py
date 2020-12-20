@@ -26,6 +26,8 @@ random.seed(SEED)
 tf.random.set_seed(SEED)
 np.random.seed(SEED)
 
+DATA_PATH = "https://raw.githubusercontent.com/b2wdigital/b2w-reviews01/master/B2W-Reviews01.csv"
+SEP = ";"
 BERT_MODEL_NAME = "neuralmind/bert-base-portuguese-cased"
 REVIEW_TITLE = "review_title"
 REVIEW_TEXT = "review_text"
@@ -328,7 +330,7 @@ def execute_experiment(model_definition: str) -> None:
         decoder_test,
         decoder_label_train,
         decoder_label_test,
-    ) = process_data(DATA_PATH, REVIEW_TEXT, REVIEW_TITLE)
+    ) = process_data(DATA_PATH, REVIEW_TEXT, REVIEW_TITLE, SEP)
 
     if model_definition == "bert":
         encoder_train = bert.tokenize_encoder(
@@ -357,11 +359,10 @@ def execute_experiment(model_definition: str) -> None:
         decoder_inference,
         tokenizer_layer_decoder,
         tokenizer_layer_decoder_inference,
-        1000,
+        10000,
     )
     return None
 
 
 if __name__ == "__main__":
-    DATA_PATH = "data/b2w-10k.csv"
     execute_experiment()

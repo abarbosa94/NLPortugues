@@ -80,12 +80,10 @@ def generate_sequences(
             decoder_seq_length,
             tokenizer_layer_decoder_inference,
         )
-        results.append(
-            (input_text[idx], target_text[idx], preprocessed_original[idx], target)
-        )
+        results.append((target_text[idx], preprocessed_original[idx], target))
     return DataFrame(
         results,
-        columns=["original", "target_original", "target_processed", "predicted"],
+        columns=["target_original", "target_processed", "predicted"],
     ).set_index(sample_idx)
 
 
