@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Tuple, Union
 
 import nltk
 import numpy as np
@@ -6,6 +6,7 @@ from nltk.translate import meteor_score
 from nltk.translate.bleu_score import corpus_bleu
 from nltk.translate.nist_score import corpus_nist
 from pandas import DataFrame
+from tensorflow import Tensor
 from tensorflow.keras import Model
 from tensorflow.python.keras.layers import TextVectorization
 from tqdm import tqdm
@@ -19,19 +20,32 @@ nltk.download("wordnet")
 def decode_text(
     infenc: Model,
     infdec: Model,
-    source: str,
+    source: Union[str, Tensor],
     n_steps: int,
     tokenizer_layer_decoder_inference: TextVectorization,
 ) -> str:
     # start of sequence input
-    out_inf, state_h_inf, state_c_inf = infenc.predict([source])
-    state = [state_h_inf, state_c_inf]
+    state = None
+    out_inf = None
+    if infdec.get_layer("decoder_rnn").__class__.__name__ is "GRU":
+        out_inf, state_h_inf = infenc.predict(source)
+        state = state_h_inf
+    elif infdec.get_layer("decoder_rnn").__class__.__name__ is "LSTM":
+        out_inf, state_h_inf, state_c_inf = infenc.predict([source])
+        state = [state_h_inf, state_c_inf]
     target_seq = np.array([SpecialTokens.START_TOKEN.value])
     # collect predictions
     output = list()
     for t in range(n_steps):
         # predict next char
-        yhat, h, c = infdec.predict([target_seq] + [out_inf] + state)
+        h, c, yhat = None, None, None
+        if infdec.get_layer("decoder_rnn").__class__.__name__ is "GRU":
+            yhat, h = infdec.predict([target_seq] + [out_inf] + [state])
+            # update state
+            state = h
+        elif infdec.get_layer("decoder_rnn").__class__.__name__ is "LSTM":
+            yhat, h, c = infdec.predict([target_seq] + [out_inf] + state)
+            state = [h, c]
         # store prediction
         next_item = yhat[0, 0, :].argmax()
         word = tokenizer_layer_decoder_inference.get_vocabulary()[next_item]
@@ -39,8 +53,6 @@ def decode_text(
         output.append(word)
         if word == "xxend":
             break
-        # update state
-        state = [h, c]
         # update target sequence
         target_seq = np.array([word])
     return " ".join(output)
