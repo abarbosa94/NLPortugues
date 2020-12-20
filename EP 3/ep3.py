@@ -282,7 +282,7 @@ def generate_final_results(
     tokenizer_layer_decoder_inference: TextVectorization,
     n_samples: int,
 ) -> None:
-    _, test_loss, test_acc = full_model.evaluate(
+    test_loss, test_acc = full_model.evaluate(
         [input_text, target_text],
         tokenizer_layer_decoder(target_text_label),
         batch_size=128,

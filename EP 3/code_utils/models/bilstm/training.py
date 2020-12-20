@@ -86,6 +86,6 @@ def define_full_model(
     # Define the model
     model = Model(
         [input_text_encoder, input_text_decoder],
-        [dense_outputs, decoder_h_state, decoder_c_state],
+        [dense_outputs],
     )
     return model
