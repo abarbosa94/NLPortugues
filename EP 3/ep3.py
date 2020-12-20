@@ -1,3 +1,4 @@
+import random
 from typing import Tuple
 
 import click
@@ -20,15 +21,17 @@ from code_utils.models import bert, bilstm
 from code_utils.preprocessing.data_preprocessing import process_data
 
 tf.get_logger().setLevel("ERROR")
-tf.random.set_seed(42)
-np.random.seed(42)
+SEED = 42
+random.seed(SEED)
+tf.random.set_seed(SEED)
+np.random.seed(SEED)
 
 BERT_MODEL_NAME = "neuralmind/bert-base-portuguese-cased"
 REVIEW_TITLE = "review_title"
 REVIEW_TEXT = "review_text"
 ENCODER_SEQ_LENGTH = 117
 DECODER_SEQ_LENGTH = 8
-BATCH_SIZE = 128
+BATCH_SIZE = 64
 EPOCHS = 1
 EMBED_DIM = 256
 BERT_DIM = 768
@@ -183,7 +186,7 @@ def execute_train(
     # decay by 1/2 after 4 epochs; 1/3 by epoch 8 and so on
     steps_per_epoch = len(encoder_train) // BATCH_SIZE
     lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-        0.001, decay_steps=steps_per_epoch * 4, decay_rate=1, staircase=False
+        0.001, decay_steps=steps_per_epoch * 2, decay_rate=1, staircase=False
     )
     opt = tf.keras.optimizers.Adam(lr_schedule)
     model.compile(
