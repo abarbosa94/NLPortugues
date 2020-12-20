@@ -6,3 +6,6 @@ numpy==1.18.5
 tensorflow==2.2.1
 tqdm==4.48.2
 scikit_learn==0.23.2
+notebook==6.1.5
+jupyter==1.0.0
+ipython
