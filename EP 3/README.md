@@ -12,14 +12,22 @@ O repositório foi organizado com a seguinte estrututra:
 │            └── comput_metrics.py <- código com a lógica de computação de métricas
 │────└── models <- módulo que isola a lógica de cada um dos modelos 
 │          └── bilstm <- módulo com apenas a lógica do modelo lstm bidirecional 
-│                 └── inference.py <- código que contém a lógica necessária para inferência  
-│                 └── training.py <- código que contém a lógica necessária para treinamento 
+│          |       └── inference.py <- código que contém a lógica necessária para inferência  
+│          |       └── training.py <- código que contém a lógica necessária para treinamento
+│          └── bert <- módulo com apenas a lógica do modelo bert como encoder
+│                 └── inference.py 
+│                 └── training.py 
 ├── data  <- Pasta com input de dados
 │    └── bw2-10k.csv <- Dataset com reviews da B2W baixado do github
-│    └── cbow_s50.txt <- Embeddings do NILC baixados do site e extraidos aqui
+│    └── bilstm <-  Resultados do modelo BiLSTM
+│    └── bert <- Resultados do experimento do BERT
 ├── notebooks  <- Pasta notebooks de estudo
 │    └── estudo-bilsm.ipynb <- notebook com estudos que levaram as tomadas de decisão do Encoder Decoder Bidirecional
-├── requirements.txt     <- arquivos `requirements.txt` com as versões de bibliotecas utilizadas
+│    └── estudo-bert.ipynb <- notebook com estudos que levaram as tomadas de decisão do BERT como encoder
+│    └── debugger-bilsm.ipynb <- notebook de debug da arquitetura BiLSTM com dados fake
+│    └── debugger-bilsm.ipynb <- notebook de debug da arquitetura BERT com dados fake
+├── requirements.txt     <- arquivo `requirements.txt` com as versões de bibliotecas utilizadas
+├── pyproject.toml     <- arquivo de configuração apra gerenciar o ambiente virtual do projeto co
 ├── nUSP7971751_ep3.pdf  <- Relatório final do EP
 ```
 
@@ -54,5 +62,7 @@ Ao rodar, a linha de comando aparecerá com as opções do experimento que você
 ```
 python ep3.py --model_definition bilstm
 ```
+
+Os notebooks foram gerados com dados do dataset reduzido enquanto o relatório final foi gerado usando os dados do dataset maior. Além disso, também houve um estudo feito com dados fake afim de avaliar se a estrutura da rede estava funcionando (mais detalhes estão na ultima seção do relatório.)
 
 
