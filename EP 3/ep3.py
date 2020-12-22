@@ -11,7 +11,7 @@ from tensorflow.keras.layers.experimental.preprocessing import \
 from tensorflow.python.keras import Input
 from tensorflow.python.keras.callbacks import History
 from tensorflow.python.keras.layers import (GRU, LSTM, Attention,
-                                            Bidirectional, Dense, Embedding)
+                                            Bidirectional, Dense, Embedding, AdditiveAttention)
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.utils.vis_utils import plot_model
 from transformers import TFBertModel
@@ -26,18 +26,21 @@ random.seed(SEED)
 tf.random.set_seed(SEED)
 np.random.seed(SEED)
 
+#DATA_PATH = "data/b2w-10k.csv"
+#SEP = ","
 DATA_PATH = "https://raw.githubusercontent.com/b2wdigital/b2w-reviews01/master/B2W-Reviews01.csv"
 SEP = ";"
-BERT_MODEL_NAME = "neuralmind/bert-large-portuguese-cased"
+BERT_MODEL_NAME = "neuralmind/bert-base-portuguese-cased"
 REVIEW_TITLE = "review_title"
 REVIEW_TEXT = "review_text"
-ENCODER_SEQ_LENGTH = 117
-DECODER_SEQ_LENGTH = 8
-BATCH_SIZE = 16
-EPOCHS = 20
+ENCODER_SEQ_LENGTH = 65
+DECODER_SEQ_LENGTH = 10
+BATCH_SIZE = 128
+EPOCHS = 50
 EMBED_DIM = 64
-BERT_DIM = 1024
-
+BERT_DIM = 768
+LEARNING_RATE=0.001
+N_SAMPLES=1000
 
 def plot_metrics(history: History, model_name):
     # summarize history for loss
@@ -51,6 +54,14 @@ def plot_metrics(history: History, model_name):
     plt.xlabel("época")
     plt.legend(["loss de treinamento", "loss de validação"], loc="upper right")
     plt.savefig(f"data/{model_name}/loss_curve.png")
+    plt.plot(history.history["accuracy"])
+    epochs = range(len(history.history["accuracy"]))
+    plt.plot(epochs, history.history["val_accuracy"])
+    plt.title(f"Gráfico de loss do modelo {model_name}")
+    plt.ylabel("acurácia")
+    plt.xlabel("época")
+    plt.legend(["acurácia de treinamento", "acurácia de validação"], loc="upper right")
+    plt.savefig(f"data/{model_name}/accuracy.png")
     return None
 
 
@@ -75,7 +86,7 @@ def bilstm_model_definition(
     decoder_lstm = LSTM(
         EMBED_DIM * 2, return_sequences=True, return_state=True, name="decoder_rnn"
     )
-    attention_layer = Attention(name="attention", causal=True)
+    attention_layer = AdditiveAttention(name="attention", causal=True)
     decoder_dense = Dense(vocab_size_decoder, activation="softmax", name="dense_layer")
 
     # Preprocessing step
@@ -128,7 +139,7 @@ def bert_model_definition(
         shape=(ENCODER_SEQ_LENGTH,), dtype=tf.int32, name="input_text"
     )
     encoder_model = TFBertModel.from_pretrained(
-        bert_model_name,
+        BERT_MODEL_NAME,
         output_hidden_states=False,
         output_attentions=False,
         from_pt=True,
@@ -138,12 +149,12 @@ def bert_model_definition(
     input_text_decoder = Input(shape=(None,), dtype=tf.string, name="decoder_input")
     emb_dec_layer = Embedding(vocab_size_decoder, EMBED_DIM, name="decoder_embedding")
     decoder_model = GRU(
-        bert_dim, return_sequences=True, return_state=True, name="decoder_rnn"
+        BERT_DIM, return_sequences=True, return_state=True, name="decoder_rnn"
     )
     attention_layer = Attention(name="attention", causal=True)
     decoder_dense = Dense(vocab_size_decoder, activation="softmax", name="dense_layer")
 
-    ## Preprocessing step
+    # Preprocessing step
     tokenized_decoder = tokenizer_layer_decoder(input_text_decoder)
     # embedding layer
     dec_emb = emb_dec_layer(tokenized_decoder)
@@ -185,17 +196,13 @@ def execute_train(
 ) -> History:
     my_callbacks = [tf.keras.callbacks.EarlyStopping(patience=2)]
 
-    # decay by 1/2 after 4 epochs; 1/3 by epoch 8 and so on
-    steps_per_epoch = len(encoder_train) // BATCH_SIZE
-    lr_schedule = tf.keras.optimizers.schedules.InverseTimeDecay(
-        0.001, decay_steps=steps_per_epoch * 2, decay_rate=1, staircase=False
-    )
-    opt = tf.keras.optimizers.Adam(lr_schedule)
+    opt = tf.keras.optimizers.Adam(LEARNING_RATE)
     model.compile(
-        opt,
+            optimizer='adam',
         loss={"dense_layer": "sparse_categorical_crossentropy"},
         metrics={"dense_layer": "accuracy"},
     )
+    print(f"Forma do Dataset de Treinamento: {encoder_train.shape}")
     history = model.fit(
         [encoder_train, decoder_train],
         tokenizer_layer_decoder(decoder_label_train),
@@ -359,7 +366,7 @@ def execute_experiment(model_definition: str) -> None:
         decoder_inference,
         tokenizer_layer_decoder,
         tokenizer_layer_decoder_inference,
-        10000,
+        N_SAMPLES,
     )
     return None
 

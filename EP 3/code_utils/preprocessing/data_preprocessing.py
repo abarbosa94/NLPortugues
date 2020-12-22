@@ -69,7 +69,7 @@ def generate_embeddings(
 def process_data(
     path: str, review_text: str, review_title: str, sep: str = ","
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-    df = pd.read_csv(path, sep=sep)
+    df = pd.read_csv(path, sep=sep, low_memory=False)
     input_text = df[[review_text]]
     target_text = df[[review_title]]
 

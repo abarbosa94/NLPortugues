@@ -77,7 +77,7 @@ def define_full_model(
     decoder_concat_input = Concatenate(name="concat_layer")(
         [decoder_output, attn_context_vector]
     )
-    dense_outputs = decoder_dense(decoder_concat_input)
+    dense_outputs = decoder_dense(decoder_output)
 
     # Define the model
     model = Model(

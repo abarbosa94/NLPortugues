@@ -18,21 +18,21 @@ nltk.download("wordnet")
 
 # generate target given source sequence
 def decode_text(
-    infenc: Model,
-    infdec: Model,
-    source: Union[str, Tensor],
-    n_steps: int,
-    tokenizer_layer_decoder_inference: TextVectorization,
-) -> str:
+    infenc,
+    infdec,
+    src,
+    n_steps,
+    tokenizer_layer_decoder_inference,
+):
     # start of sequence input
     state = None
     out_inf = None
     if infdec.get_layer("decoder_rnn").__class__.__name__ is "GRU":
-        source = reshape(source, shape=(1, -1))
-        out_inf, state_h_inf = infenc.predict(source)
-        state = state_h_inf
+        src = reshape(src, shape=(1, -1))
+        state_h_inf = infenc.predict(src)
+        state = [state_h_inf]
     elif infdec.get_layer("decoder_rnn").__class__.__name__ is "LSTM":
-        out_inf, state_h_inf, state_c_inf = infenc.predict([source])
+        out_inf, state_h_inf, state_c_inf = infenc.predict([src])
         state = [state_h_inf, state_c_inf]
     target_seq = np.array([SpecialTokens.START_TOKEN.value])
     # collect predictions
@@ -41,15 +41,15 @@ def decode_text(
         # predict next char
         h, c, yhat = None, None, None
         if infdec.get_layer("decoder_rnn").__class__.__name__ is "GRU":
-            yhat, h = infdec.predict([target_seq] + [out_inf] + [state])
+            yhat, h = infdec.predict([target_seq] + state)
             # update state
-            state = h
+            state = [h]
         elif infdec.get_layer("decoder_rnn").__class__.__name__ is "LSTM":
             yhat, h, c = infdec.predict([target_seq] + [out_inf] + state)
             state = [h, c]
         # store prediction
         next_item = yhat[0, 0, :].argmax()
-        word = tokenizer_layer_decoder_inference.get_vocabulary()[next_item]
+        word = tokenizer_layer_decoder_inference.get_vocabulary()[next_item-2]
         word = word.decode("utf-8")
         output.append(word)
         if word == "xxend":
@@ -80,11 +80,15 @@ def generate_sequences(
             decoder_seq_length,
             tokenizer_layer_decoder_inference,
         )
-        results.append((target_text[idx], preprocessed_original[idx], target))
-    return DataFrame(
+        results.append((preprocessed_original[idx], target))
+    final_df = DataFrame(
         results,
-        columns=["target_original", "target_processed", "predicted"],
+        columns=["target_processed", "predicted"],
     ).set_index(sample_idx)
+    #final_df["target_processed"] = final_df["target_processed"].apply(lambda x: x[0])
+    #final_df["target_processed"] = final_df["target_processed"].str.replace(SpecialTokens.START_TOKEN.value, '')
+
+    return final_df
 
 
 def report_linguistic_metrics(sentences: DataFrame) -> Tuple[float, float, float]:
