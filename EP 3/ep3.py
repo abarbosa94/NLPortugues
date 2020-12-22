@@ -10,8 +10,9 @@ from tensorflow.keras.layers.experimental.preprocessing import \
     TextVectorization
 from tensorflow.python.keras import Input
 from tensorflow.python.keras.callbacks import History
-from tensorflow.python.keras.layers import (GRU, LSTM, Attention,
-                                            Bidirectional, Dense, Embedding, AdditiveAttention)
+from tensorflow.python.keras.layers import (GRU, LSTM, AdditiveAttention,
+                                            Attention, Bidirectional, Dense,
+                                            Embedding)
 from tensorflow.python.keras.models import Model
 from tensorflow.python.keras.utils.vis_utils import plot_model
 from transformers import TFBertModel
@@ -26,8 +27,8 @@ random.seed(SEED)
 tf.random.set_seed(SEED)
 np.random.seed(SEED)
 
-#DATA_PATH = "data/b2w-10k.csv"
-#SEP = ","
+# DATA_PATH = "data/b2w-10k.csv"
+# SEP = ","
 DATA_PATH = "https://raw.githubusercontent.com/b2wdigital/b2w-reviews01/master/B2W-Reviews01.csv"
 SEP = ";"
 BERT_MODEL_NAME = "neuralmind/bert-base-portuguese-cased"
@@ -39,8 +40,9 @@ BATCH_SIZE = 128
 EPOCHS = 50
 EMBED_DIM = 64
 BERT_DIM = 768
-LEARNING_RATE=0.001
-N_SAMPLES=1000
+LEARNING_RATE = 0.001
+N_SAMPLES = 1000
+
 
 def plot_metrics(history: History, model_name):
     # summarize history for loss
@@ -198,7 +200,7 @@ def execute_train(
 
     opt = tf.keras.optimizers.Adam(LEARNING_RATE)
     model.compile(
-            optimizer='adam',
+        optimizer=opt,
         loss={"dense_layer": "sparse_categorical_crossentropy"},
         metrics={"dense_layer": "accuracy"},
     )

@@ -49,7 +49,7 @@ def decode_text(
             state = [h, c]
         # store prediction
         next_item = yhat[0, 0, :].argmax()
-        word = tokenizer_layer_decoder_inference.get_vocabulary()[next_item-2]
+        word = tokenizer_layer_decoder_inference.get_vocabulary()[next_item - 2]
         word = word.decode("utf-8")
         output.append(word)
         if word == "xxend":
@@ -85,8 +85,6 @@ def generate_sequences(
         results,
         columns=["target_processed", "predicted"],
     ).set_index(sample_idx)
-    #final_df["target_processed"] = final_df["target_processed"].apply(lambda x: x[0])
-    #final_df["target_processed"] = final_df["target_processed"].str.replace(SpecialTokens.START_TOKEN.value, '')
 
     return final_df
 
